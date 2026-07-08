@@ -575,13 +575,13 @@
           payload.id = args[0];
         }
 
-        // Memaksa Android WebView melupakan cache API dengan parameter waktu unik
-        var urlAntiCache = GAS_API_URL + "?t=" + new Date().getTime();
+        // PENGAMAN ANTI-CACHE: Titipkan timestamp ke dalam data, JANGAN ubah URL
+        payload._t = new Date().getTime();
 
-        return fetch(urlAntiCache, {
+        return fetch(GAS_API_URL, {
           method: "POST",
           mode: "cors",
-          cache: "no-store", // <-- PENGAMAN ANTI-CACHE MUTLAK
+          cache: "no-store", 
           redirect: "follow",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify(payload)
