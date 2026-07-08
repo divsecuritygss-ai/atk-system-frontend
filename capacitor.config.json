@@ -3,7 +3,7 @@
   "appName": "ATK System",
   "webDir": "dist",
   "server": {
-    "url": "https://atk-system-frontend.vercel.app",
+    "url": "[https://atk-system-frontend.vercel.app](https://atk-system-frontend.vercel.app)",
     "cleartext": true
   }
 }
