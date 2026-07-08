@@ -11,11 +11,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Mengambil kode sumber dari repositori GitHub
+      # Mengambil kode sumber dari repositori GitHub menggunakan v4
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Mengonfigurasi lingkungan runtime Node.js versi 20
+      # Mengonfigurasi lingkungan runtime Node.js versi 20 menggunakan v4
       - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
@@ -31,14 +31,14 @@ jobs:
         run: |
           npm run build
 
-      # Menyiapkan Java Development Kit (JDK) 17 untuk Android SDK
+      # Menyiapkan Java Development Kit (JDK) 17 untuk Android SDK menggunakan v4
       - name: Setup Java JDK
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
 
-      # Memasang peralatan Android SDK versi terbaru
+      # Memasang peralatan Android SDK versi terbaru menggunakan v3
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
