@@ -1,0 +1,11 @@
+{
+  "name": "atk-system-frontend",
+  "version": "1.0.0",
+  "description": "Enterprise ATK Frontend Suite",
+  "scripts": {
+    "start": "npx serve .",
+    "build": "mkdir -p dist && cp index.html dist/ && cp -r public dist/ 2>/dev/null || true"
+  },
+  "dependencies": {}
+}
+
