@@ -560,7 +560,8 @@
       } 
       // B. Jika Dijalankan di Vercel atau Android (Production)
       else {
-        if (!GAS_API_URL || GAS_API_URL.includes('https://script.google.com/macros/s/AKfycbyjJjnr07A5DOtAt_lor58SRWaaGmaUo3LaxbR3eJBbhFMjp9Q04xNoWuZ6mbxDKlvE/exec')) {
+        // PERBAIKAN: Menghapus filter pengecekan URL palsu yang menolak URL asli
+        if (!GAS_API_URL || GAS_API_URL.trim() === "") {
           return Promise.reject(new Error('Mode Hybrid API belum dikonfigurasi dengan URL yang valid. Silakan ubah variabel GAS_API_URL di Index.html.'));
         }
 
