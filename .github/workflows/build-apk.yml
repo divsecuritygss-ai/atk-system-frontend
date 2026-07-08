@@ -37,12 +37,12 @@ jobs:
         run: |
           npm run build
 
-      # Menyiapkan Java Development Kit (JDK) 17 untuk Android SDK menggunakan v4
+      # Menyiapkan Java Development Kit (JDK) 21 untuk Android SDK menggunakan v4
       - name: Setup Java JDK
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '17'
+          java-version: '21'
 
       # Memasang peralatan Android SDK versi terbaru menggunakan v3
       - name: Setup Android SDK
