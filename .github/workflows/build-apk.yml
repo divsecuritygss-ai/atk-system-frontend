@@ -15,11 +15,17 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Mengonfigurasi lingkungan runtime Node.js versi 22 menggunakan v4 (Kebutuhan Minimum Capacitor CLI terbaru)
+      # Mengonfigurasi lingkungan runtime Node.js menggunakan string '22' murni (v4)
       - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: '22'
+
+      # Memverifikasi secara eksplisit versi Node.js yang aktif di runner untuk kebutuhan debug
+      - name: Verify Node.js Version
+        run: |
+          node -v
+          npm -v
 
       # Memasang dependensi npm proyek
       - name: Install Dependencies
