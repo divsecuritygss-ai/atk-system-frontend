@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ATK System - Enterprise Suite</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+    
+    :root {
+      --brand-primary: #059669;       
+      --brand-primary-hover: #047857; 
+      --brand-light: #ecfdf5;         
+      --brand-dark: #065f46;          
+      --neutral-bg: #f8fafc;          
+      --neutral-dark: #1e293b;        
+      --neutral-muted: #64748b;       
+      --card-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.03);
+      --sidebar-width: 270px;
+    }
+
+    body { 
+      font-family: 'Plus Jakarta Sans', sans-serif; 
+      background-color: var(--neutral-bg); 
+      color: var(--neutral-dark);
+      overflow-x: hidden; 
+    }
+    
+    .placeholder-glow .placeholder { 
+      background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); 
+      background-size: 200% 100%; 
+      animation: shimmer 1.5s infinite; 
+      border-radius: 6px;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    
+    .sidebar { 
+      height: 100vh; 
+      background: #ffffff; 
+      width: var(--sidebar-width); 
+      position: fixed; 
+      left: 0; 
+      top: 0; 
+      z-index: 1040; 
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+      border-right: 1px solid #e2e8f0;
+    }
+    .sidebar .brand { 
+      padding: 24px; 
+      font-weight: 700; 
+      font-size: 1.25rem; 
+      color: var(--brand-dark); 
+      letter-spacing: -0.5px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .nav-item-custom { 
+      padding: 12px 20px; 
+      color: var(--neutral-muted); 
+      cursor: pointer; 
+      display: flex;
+      align-items: center;
+      text-decoration: none; 
+      transition: all 0.2s ease; 
+      border-left: 4px solid transparent;
+      margin: 4px 12px;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+    .nav-item-custom i {
+      font-size: 1.1rem;
+      transition: transform 0.2s ease;
+    }
+    .nav-item-custom:hover { 
+      background: var(--neutral-bg); 
+      color: var(--brand-primary); 
+    }
+    .nav-item-custom:hover i {
+      transform: translateX(2px);
+    }
+    .nav-item-custom.active { 
+      background: var(--brand-light); 
+      color: var(--brand-primary); 
+      border-left-color: var(--brand-primary); 
+      font-weight: 600; 
+    }
+    .main-content { 
+      margin-left: var(--sidebar-width); 
+      padding: 32px; 
+      min-height: 100vh; 
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    }
+    
+    @media (max-width: 991.98px) {
+      .sidebar { left: calc(-1 * var(--sidebar-width)); }
+      .sidebar.active { left: 0; box-shadow: 4px 0 24px rgba(0,0,0,0.08); }
+      .main-content { margin-left: 0; padding: 20px; }
+      .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.3); z-index: 1030; backdrop-filter: blur(4px); }
+      .sidebar-overlay.active { display: block; }
+    }
+    
+    .banner-live { 
+      background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-dark) 100%); 
+      color: white; 
+      border-radius: 16px; 
+      padding: 28px; 
+      margin-bottom: 32px; 
+      box-shadow: 0 10px 25px -5px rgba(5, 150, 105, 0.15);
+      position: relative; 
+      overflow: hidden; 
+    }
+    .banner-live::after {
+      content: '';
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 50%;
+      top: -100px;
+      right: -50px;
+    }
+    
+    .card-kpi { 
+      border: 1px solid #f1f5f9; 
+      border-radius: 16px; 
+      background: #ffffff;
+      box-shadow: var(--card-shadow); 
+      transition: all 0.3s ease; 
+    }
+    .card-kpi:hover { 
+      transform: translateY(-4px); 
+      box-shadow: 0 12px 24px -4px rgba(15, 23, 42, 0.08); 
+    }
+    .kpi-icon-container {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+    
+    .product-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #ffffff;
+      box-shadow: var(--card-shadow);
+      transition: all 0.2s ease;
+    }
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px -4px rgba(15, 23, 42, 0.1);
+    }
+    .product-img-wrapper { 
+      height: 200px; 
+      width: 100%; 
+      overflow: hidden; 
+      background: #f8fafc; 
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .product-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+    .product-card:hover .product-img-wrapper img { transform: scale(1.05); }
+    
+    .floating-cart { 
+      position: fixed; 
+      bottom: 40px; 
+      right: 40px; 
+      width: 64px; 
+      height: 64px; 
+      border-radius: 50%; 
+      background: #f59e0b; 
+      color: #ffffff; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      font-size: 1.5rem; 
+      box-shadow: 0 8px 25px rgba(245,158,11,0.4); 
+      cursor: pointer; 
+      z-index: 1000; 
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    }
+    .floating-cart:hover { transform: scale(1.1) rotate(-5deg); background: #d97706; }
+    .cart-badge { 
+      position: absolute; 
+      top: -2px; 
+      right: -2px; 
+      background: #ef4444; 
+      color: white; 
+      border-radius: 50%; 
+      width: 24px; 
+      height: 24px; 
+      font-size: 0.75rem; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      font-weight: bold;
+      border: 2px solid #fff; 
+    }
+    
+    .form-control, .form-select {
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      padding: 10px 14px;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--brand-primary);
+      box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.12);
+    }
+    
+    .btn-primary {
+      background-color: var(--brand-primary);
+      border-color: var(--brand-primary);
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+      background-color: var(--brand-primary-hover) !important;
+      border-color: var(--brand-primary-hover) !important;
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2) !important;
+    }
+    
+    .password-toggle { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--neutral-muted); z-index: 10; }
+    .profile-photo-circle { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid var(--brand-primary); cursor: pointer; transition: transform 0.2s ease; }
+    .profile-photo-circle:hover { transform: scale(1.05); }
+    
+    .table-responsive {
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      box-shadow: var(--card-shadow);
+      background: white;
+    }
+    .table { margin-bottom: 0; }
+    .table th { background-color: #f8fafc; color: var(--neutral-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; padding: 16px; }
+    .table td { padding: 16px; color: var(--neutral-dark); vertical-align: middle; border-bottom: 1px solid #f1f5f9; }
+    .table tr:last-child td { border-bottom: none; }
+    .table-hover tbody tr:hover { background-color: #f8fafc; }
+    
+    .badge { padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 0.75rem; }
+    .bg-warning-soft { background-color: #fef3c7; color: #d97706; }
+    .bg-success-soft { background-color: #d1fae5; color: #059669; }
+    .bg-danger-soft { background-color: #fee2e2; color: #dc2626; }
+    .bg-secondary-soft { background-color: #f1f5f9; color: #475569; }
+    
+    .modal-content { border: none; border-radius: 20px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); overflow: hidden; }
+    .modal-header { border-bottom: 1px solid #f1f5f9; padding: 24px; }
+    .modal-footer { border-top: 1px solid #f1f5f9; padding: 24px; background: #f8fafc; }
+  </style>
+</head>
+<body>
+
+  <div id="fullPageLoader" style="display:none; position:fixed; inset:0; background:rgba(255,255,255,0.95); z-index:9999; justify-content:center; align-items:center; flex-direction:column; backdrop-filter:blur(8px);">
+    <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem; border-width: 0.25em;"></div>
+    <p class="mt-4 fw-bold text-dark tracking-wide small text-uppercase">Mengamankan Jalur Data Suite...</p>
+  </div>
+
+  <div id="previewLoginInfo" class="d-none position-fixed top-0 end-0 m-3 badge bg-dark text-warning shadow z-3">INTELLIGENT SIMULATION MODE</div>
+
+  <div id="loginPage" class="container-fluid bg-light min-vh-100 d-flex align-items-center justify-content-center" style="background: radial-gradient(circle at top right, var(--brand-light) 0%, #f8fafc 100%);">
+    <div class="card border-0 shadow-lg rounded-4" style="width: 100%; max-width: 440px; border-top: 5px solid var(--brand-primary) !important;">
+      <div class="card-body p-5">
+        <div class="text-center mb-5">
+          <div class="d-inline-flex align-items-center justify-content-center bg-emerald-soft p-3 rounded-3 mb-3" style="background: var(--brand-light); width: 64px; height: 64px;">
+            <i class="fa-solid fa-boxes-packing fa-2x text-success"></i>
+          </div>
+          <h4 class="fw-bold text-dark">ATK GSS Suite</h4>
+          <p class="text-muted small">Masukkan Data Otorisasi Anda</p>
+        </div>
+        <form id="loginForm">
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-dark">User Account Identifier</label>
+            <input type="text" class="form-control" id="username" placeholder="Masukkan username" required>
+          </div>
+          <div class="mb-4">
+            <label class="form-label small fw-bold text-dark">Password Access Key</label>
+            <div class="position-relative">
+              <input type="password" class="form-control pe-5" id="password" placeholder="Masukkan kata sandi" required>
+              <i class="fa-regular fa-eye password-toggle" id="togglePassword"></i>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary w-100 py-2.5 shadow-sm fw-bold">Login Sekarang</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div id="mainApp" class="d-none">
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    
+    <div class="sidebar d-flex flex-column">
+      <div class="brand d-flex align-items-center gap-2">
+        <i class="fa-solid fa-boxes-packing text-success"></i> <span>ATK System</span>
+      </div>
+      <div class="p-4 text-center border-bottom bg-light bg-opacity-50">
+        <img src="https://placehold.co/100x100?text=User" id="sidebarPhoto" class="rounded-circle mb-2 shadow-sm" width="64" height="64" style="object-fit:cover; border:2px solid var(--brand-primary);">
+        <h6 class="fw-bold mb-0 text-dark" id="displayUser">Nama User</h6>
+        <small class="text-muted d-block mt-0.5" id="displayDivisiBU">Divisi - BU</small>
+        <span class="badge bg-success-soft mt-2" id="displayRole">Role</span>
+      </div>
+      
+      <div class="flex-grow-1 overflow-auto py-3">
+        <a class="nav-item-custom active" onclick="showPage('dashboard', this)"><i class="fa-solid fa-chart-pie me-3 w-20px"></i> Core Dashboard</a>
+        
+        <div id="menuStaff" style="display:none;">
+          <a class="nav-item-custom" onclick="showPage('catalog', this)"><i class="fa-solid fa-store me-3 w-20px"></i> Katalog Logistik</a>
+          <a class="nav-item-custom" onclick="showPage('pengajuan', this)"><i class="fa-solid fa-clipboard-list me-3 w-20px"></i> Pengajuan Barang</a>
+        </div>
+        
+        <div id="menuAdmin" style="display:none;">
+          <a class="nav-item-custom" onclick="showPage('verifikasi', this)"><i class="fa-solid fa-clipboard-check me-3 w-20px"></i> Verifikasi Pengajuan</a>
+          <a class="nav-item-custom" onclick="showPage('manajemen', this)"><i class="fa-solid fa-box-open me-3 w-20px"></i> Kontrol Inventaris</a>
+        </div>
+      </div>
+      
+      <div class="p-3 border-top bg-light bg-opacity-25">
+        <a class="nav-item-custom mx-1" onclick="openProfileModal()"><i class="fa-solid fa-user-pen me-3 w-20px"></i> Konfigurasi Profil</a>
+        <a class="nav-item-custom text-danger mt-1" onclick="logout()"><i class="fa-solid fa-right-from-bracket me-3 w-20px"></i> Terminasi Sesi</a>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="d-flex justify-content-between align-items-center mb-4 d-lg-none bg-white p-3 rounded-3 shadow-sm">
+        <h5 class="fw-bold mb-0 text-success"><i class="fa-solid fa-boxes-packing me-2"></i> ATK System</h5>
+        <button class="btn btn-light border" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+      </div>
+
+      <div id="page-dashboard">
+        <div class="banner-live">
+          <h4 class="fw-bold mb-1">Selamat Datang, <span id="bannerName"></span>!</h4>
+          <p class="mb-0 opacity-75 small fw-medium" id="liveDateTime"></p>
+        </div>
+
+        <div id="dashboardFilter" class="mb-4 d-none">
+          <label class="form-label small fw-bold text-muted d-block mb-1">Filter Wilayah Otoritas</label>
+          <select class="form-select w-auto d-inline-block shadow-sm" id="filterBU" onchange="renderDashboard()">
+            <option value="ALL">Semua Bisnis Unit</option>
+          </select>
+        </div>
+
+        <div id="dashboardContainer"></div> 
+      </div>
+
+      <div id="page-catalog" class="d-none">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+          <div>
+            <h4 class="fw-bold mb-0 text-dark">Katalog Pengadaan Barang</h4>
+            <p class="text-muted small mb-0">Pilih item inventaris yang Anda butuhkan untuk operasional kerja</p>
+          </div>
+          <div class="position-relative" style="max-width: 320px; width: 100%;">
+            <input type="text" id="searchCatalog" class="form-control shadow-sm ps-4" placeholder="Cari nama item logistik..." onkeyup="renderCatalog()">
+            <i class="fa-solid fa-magnifying-glass position-absolute end-0 top-50 translate-middle-y me-3 text-muted"></i>
+          </div>
+        </div>
+        <div id="catalogContainer" class="row g-4"></div>
+        
+        <div class="floating-cart" onclick="openCartModal()">
+          <i class="fa-solid fa-cart-shopping"></i>
+          <span class="cart-badge" id="cartBadge">0</span>
+        </div>
+      </div>
+
+      <div id="page-pengajuan" class="d-none">
+        <div class="mb-4">
+          <h4 class="fw-bold mb-0 text-dark">Daftar Pengajuan Barang</h4>
+          <p class="text-muted small mb-0">Melacak alur persetujuan logistik dari akun Anda secara real-time</p>
+        </div>
+        <div id="pengajuanContainer"></div>
+      </div>
+
+      <div id="page-verifikasi" class="d-none">
+        <div class="mb-4">
+          <h4 class="fw-bold mb-0 text-dark">Daftar Pengajuan</h4>
+          <p class="text-muted small mb-0">Evaluasi, periksa ketersediaan stok fisik, dan setujui manifes permintaan</p>
+        </div>
+        <div id="verifikasiContainer"></div>
+      </div>
+
+      <div id="page-manajemen" class="d-none">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+          <div>
+            <h4 class="fw-bold mb-0 text-dark">Pusat Manajemen Inventaris</h4>
+            <p class="text-muted small mb-0">Lakukan penambahan barang, mutasi stok, serta penyesuaian katalog harga</p>
+          </div>
+          <div class="d-flex gap-2 w-100 justify-content-md-end" style="max-width: 540px;">
+            <div class="position-relative flex-grow-1">
+              <input type="text" id="searchManajemen" class="form-control shadow-sm ps-4" placeholder="Cari barang di database master..." onkeyup="renderManajemenBarang()">
+              <i class="fa-solid fa-magnifying-glass position-absolute end-0 top-50 translate-middle-y me-3 text-muted"></i>
+            </div>
+            <button class="btn btn-primary text-nowrap shadow-sm" onclick="openBarangModal()"><i class="fa-solid fa-plus me-1"></i> Tambah Item</button>
+          </div>
+        </div>
+        <div id="manajemenContainer"></div>
+      </div>
+
+      <footer class="text-center mt-5 pt-4 pb-3 border-top border-light">
+        <small class="text-muted fw-medium">ATK Management Platform GSS | 2026</small>
+      </footer>
+    </div>
+  </div>
+
+  <div class="modal fade" id="cartModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-light bg-opacity-50">
+          <h5 class="modal-title fw-bold text-dark"><i class="fa-solid fa-cart-shopping text-warning me-2"></i> Konfirmasi Keranjang Logistik</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4" id="cartModalBody"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light border px-4" data-bs-dismiss="modal">Simpan Draf</button>
+          <button type="button" class="btn btn-primary px-4" onclick="submitCart()"><i class="fa-solid fa-paper-plane me-2"></i> Luncurkan Pengajuan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="verifikasiModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-content">
+        <div class="modal-header bg-light bg-opacity-50">
+          <h5 class="modal-title fw-bold text-dark" id="verifikasiModalTitle">Lembar Otorisasi Pengajuan</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4" id="verifikasiModalBody"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Tangguhkan</button>
+          <button type="button" class="btn btn-primary" onclick="saveVerifikasi()"><i class="fa-solid fa-check me-2"></i> Eksekusi Keputusan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="barangModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form id="barangForm">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold text-dark">Formulir Manajemen Parameter Barang</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body p-4">
+            <input type="hidden" id="b_id">
+            <input type="hidden" id="b_isEdit" value="false">
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-dark">Nama Barang (Lengkap & Spesifik)</label>
+              <input type="text" class="form-control" id="b_nama" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-dark">Aset Tautan Foto (Public Cloud Link)</label>
+              <input type="url" class="form-control" id="b_foto" placeholder="https://drive.google.com/..." required>
+            </div>
+            <div class="row">
+              <div class="col-6 mb-3">
+                <label class="form-label small fw-bold text-dark">Harga Satuan Korporat</label>
+                <input type="number" class="form-control" id="b_harga" min="0" required>
+              </div>
+              <div class="col-6 mb-3">
+                <label class="form-label small fw-bold text-dark">Jumlah Stok Fisik</label>
+                <input type="number" class="form-control" id="b_stok" min="0" required>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary w-100 py-2">Commit Perubahan ke Database</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="profileModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form id="profileForm">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold text-dark">Pusat Informasi Akun Karyawan</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body text-center p-4">
+            <div class="mb-4">
+              <div class="position-relative d-inline-block">
+                <img src="" id="profPreview" class="profile-photo-circle shadow">
+                <span class="position-absolute bottom-0 end-0 bg-success p-2 rounded-circle text-white shadow-sm d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; cursor: pointer;" onclick="document.getElementById('profFile').click()">
+                  <i class="fa-solid fa-camera font-size:0.8rem;"></i>
+                </span>
+              </div>
+              <input type="file" id="profFile" class="d-none" accept="image/*" onchange="previewProfilePhoto(this)">
+              <div class="small text-muted mt-2">Ketuk ikon kamera untuk mutasi foto profil digital</div>
+            </div>
+            <div class="text-start">
+              <div class="mb-3">
+                <label class="form-label small fw-bold text-dark">Nama Lengkap Sesuai ID Card</label>
+                <input type="text" class="form-control" id="profFullname" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label small fw-bold text-dark">Username Sistem</label>
+                <input type="text" class="form-control" id="profUsername" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label small fw-bold text-dark">Kunci Keamanan Baru (Kosongkan jika tidak bermutasi)</label>
+                <input type="password" class="form-control" id="profPassword" placeholder="••••••••••••">
+              </div>
+              <div class="row">
+                <div class="col-6 mb-3">
+                  <label class="form-label small fw-bold text-muted">Divisi</label>
+                  <input type="text" class="form-control bg-light text-muted" id="profDivisi" readonly>
+                </div>
+                <div class="col-6 mb-3">
+                  <label class="form-label small fw-bold text-muted">Bisnis Unit</label>
+                  <input type="text" class="form-control bg-light text-muted" id="profBU" readonly>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary w-100 py-2">Sinkronisasikan Pembaruan Profil</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    var activePage = 'dashboard';
+    var currentUser = null;
+    var isDataLoaded = false;
+    var dbBarang = [];
+    var dbPengajuan = [];
+    var dbUsers = [];
+    var cart = [];
+    var chartPie = null;
+    var chartBarItem = null;
+    var chartBarBU = null;
+
+    var mockBarang = [
+      { id: 1, nama: 'Canon GI-71 BLACK', foto_url: 'https://placehold.co/400?text=GI-71+Black', harga: 140400, stok: 10, created_at: '2026-07-08' },
+      { id: 2, nama: 'Canon GI-71 CYAN', foto_url: 'https://placehold.co/400?text=GI-71+Cyan', harga: 140400, stok: 50, created_at: '2026-07-08' },
+      { id: 3, nama: 'Mouse Wireless Logitech', foto_url: 'https://placehold.co/400?text=Mouse', harga: 250000, stok: 15, created_at: '2026-07-08' },
+      { id: 4, nama: 'Printer Epson L3110', foto_url: 'https://placehold.co/400?text=Printer', harga: 3200000, stok: 5, created_at: '2026-07-08' },
+      { id: 5, nama: 'Kertas HVS A4 (Rim)', foto_url: 'https://placehold.co/400?text=HVS', harga: 55000, stok: 0, created_at: '2026-07-08' }
+    ];
+    var mockPengajuan = [
+      { _row: 2, id_trans: 'TRX-476721', id_user: 2, nama_user: 'Ibnu Sastra', divisi: 'Share Function', bisnis_unit: 'Share Function', id_barang: 1, nama_barang: 'Canon GI-71 BLACK', foto_barang: 'https://placehold.co/400?text=GI-71+Black', harga: 140400, qty_req: 1, catatan: 'Printer Canon G3020 Divisi Share Function', qty_app: 0, status: 'PENDING', tanggal: '2026-07-08 10:00:00' },
+      { _row: 3, id_trans: 'TRX-476721', id_user: 2, nama_user: 'Ibnu Sastra', divisi: 'Share Function', bisnis_unit: 'Share Function', id_barang: 2, nama_barang: 'Canon GI-71 CYAN', foto_barang: 'https://placehold.co/400?text=GI-71+Cyan', harga: 140400, qty_req: 1, catatan: 'Printer Canon G3020 Divisi Share Function', qty_app: 0, status: 'PENDING', tanggal: '2026-07-08 10:00:00' }
+    ];
+
+     // GANTI dengan URL Web App Apps Script Anda setelah di-deploy ulang
+    var GAS_API_URL = "https://script.google.com/macros/s/AKfycbyjJjnr07A5DOtAt_lor58SRWaaGmaUo3LaxbR3eJBbhFMjp9Q04xNoWuZ6mbxDKlvE/exec";
+
+    function gasRun(funcName) {
+      var args = Array.prototype.slice.call(arguments, 1);
+      
+      // Jika berada di Mode Simulasi lokal (tanpa API URL dikonfigurasi)
+      if (typeof google === 'undefined' && (!GAS_API_URL || GAS_API_URL.includes('https://script.google.com/macros/s/AKfycbyjJjnr07A5DOtAt_lor58SRWaaGmaUo3LaxbR3eJBbhFMjp9Q04xNoWuZ6mbxDKlvE/exec'))) {
+        return new Promise(function(resolve, reject) {
+          reject(new Error('Mode Simulasi Aktif'));
+        });
+      }
+
+      // Mempersiapkan payload JSON standar EASE-OS REST API
+      var payload = {
+        action: funcName
+      };
+
+      // Map parameter sesuai dengan struktur API backend
+      if (funcName === "loginUser") {
+        payload.username = args[0];
+        payload.password = args[1];
+      } else if (funcName === "savePengajuan" || funcName === "saveBarang" || funcName === "updateProfile") {
+        payload.data = args[0];
+      } else if (funcName === "deleteBarang") {
+        payload.id = args[0];
+      }
+
+      // Melakukan pemanggilan CORS Fetch API ke Google Apps Script Engine
+      return fetch(GAS_API_URL, {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8" // Menghindari pre-flight OPTIONS pre-request GAS
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (data.success === false) throw new Error(data.message);
+        return data;
+      });
+    }
+
+    function showFullPageLoading(msg) {
+      var loader = document.getElementById('fullPageLoader');
+      if (!loader) return;
+      if (msg) loader.querySelector('p').innerText = msg;
+      loader.style.display = 'flex';
+    }
+    
+    function hideFullPageLoading() {
+      var loader = document.getElementById('fullPageLoader');
+      if (loader) loader.style.display = 'none';
+    }
+
+    function showSectionLoading(containerId) {
+      var container = document.getElementById(containerId);
+      if (!container) return;
+      var skeleton = '';
+      for (var i = 0; i < 3; i++) {
+        skeleton += '<div class="card border-0 shadow-sm rounded-4 mb-3" style="border: 1px solid #f1f5f9;"><div class="card-body p-4"><div class="placeholder-glow"><span class="placeholder col-7 rounded-2" style="height:20px;"></span><span class="placeholder col-4 rounded-2 mt-3 d-block" style="height:12px;"></span></div></div></div>';
+      }
+      container.innerHTML = skeleton;
+    }
+
+    function safeDate(val) {
+      if (!val) return '-';
+      return String(val).substring(0, 10);
+    }
+    
+    function formatRp(angka) {
+      return 'Rp ' + Number(angka).toLocaleString('id-ID');
+    }
+
+    function parseImageUrl(url) {
+      if (!url) return 'https://placehold.co/400?text=No+Image';
+      url = url.trim();
+      if (url.includes('drive.google.com') || url.includes('googleusercontent.com')) {
+        var match = url.match(/file\/d\/([a-zA-Z0-9_-]+)/) || 
+                    url.match(/id=([a-zA-Z0-9_-]+)/) ||
+                    url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+        if (match && match[1]) {
+          return 'https://drive.google.com/thumbnail?id=' + match[1] + '&sz=w600';
+        }
+      }
+      return url;
+    }
+
+    setInterval(function() {
+      var dt = document.getElementById('liveDateTime');
+      if (dt) {
+        var now = new Date();
+        dt.innerText = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + ' | ' + now.toLocaleTimeString('id-ID');
+      }
+    }, 1000);
+
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('loginForm').addEventListener('submit', function(e) { e.preventDefault(); handleLogin(); });
+      document.getElementById('barangForm').addEventListener('submit', function(e) { e.preventDefault(); saveBarang(); });
+      document.getElementById('profileForm').addEventListener('submit', function(e) { e.preventDefault(); saveProfile(); });
+      
+      document.getElementById('togglePassword').addEventListener('click', function() {
+        var pwd = document.getElementById('password');
+        if (pwd.type === 'password') { pwd.type = 'text'; this.classList.replace('fa-eye', 'fa-eye-slash'); }
+        else { pwd.type = 'password'; this.classList.replace('fa-eye-slash', 'fa-eye'); }
+      });
+
+      if (typeof google === 'undefined') {
+        document.getElementById('previewLoginInfo').classList.remove('d-none');
+      }
+      checkLoginState();
+    });
+
+    function toggleSidebar() {
+      document.querySelector('.sidebar').classList.toggle('active');
+      document.querySelector('.sidebar-overlay').classList.toggle('active');
+    }
+
+    function checkLoginState() {
+      var loginPage = document.getElementById('loginPage');
+      var mainApp = document.getElementById('mainApp');
+      
+      if (currentUser) {
+        loginPage.classList.add('d-none');
+        mainApp.classList.remove('d-none');
+        
+        document.getElementById('displayUser').innerText = currentUser.fullname;
+        document.getElementById('bannerName').innerText = currentUser.fullname;
+        document.getElementById('displayDivisiBU').innerText = currentUser.divisi + ' - ' + currentUser.bisnis_unit;
+        document.getElementById('displayRole').innerText = currentUser.role;
+        document.getElementById('sidebarPhoto').src = parseImageUrl(currentUser.photo_url) || 'https://placehold.co/100x100?text=' + currentUser.username.charAt(0).toUpperCase();
+        
+        document.getElementById('menuAdmin').style.display = (currentUser.role === 'Admin') ? 'block' : 'none';
+        document.getElementById('menuStaff').style.display = (currentUser.role === 'Staff') ? 'block' : 'none';
+        document.getElementById('dashboardFilter').classList.toggle('d-none', currentUser.role !== 'Admin');
+        
+        showPage('dashboard', document.querySelector('.nav-item-custom'));
+      } else {
+        mainApp.classList.add('d-none');
+        loginPage.classList.remove('d-none');
+      }
+    }
+
+    function handleLogin() {
+      var u = document.getElementById('username').value.trim();
+      var p = document.getElementById('password').value.trim();
+      if (!u || !p) return Swal.fire('Info', 'Isi data username dan password autentikasi', 'warning');
+
+      showFullPageLoading('BISMILLAH SEHAT SELALU...');
+
+      if (typeof google === 'undefined') {
+        setTimeout(function() {
+          hideFullPageLoading();
+          if (u === 'admin') currentUser = { id: 1, username: 'admin', fullname: 'Aliffa Novanti', role: 'Admin', divisi: 'GSS - Share Function', bisnis_unit: 'Share Function', photo_url: '' };
+          else if (u === 'staff1') currentUser = { id: 2, username: 'staff1', fullname: 'Ibnu Sastra', role: 'Staff', divisi: 'Share Function', bisnis_unit: 'Share Function', photo_url: '' };
+          else return Swal.fire('Autentikasi Gagal', 'Data Identitas Tidak Terdaftar dalam Sistem Corporate Domain', 'error');
+          checkLoginState();
+        }, 800);
+      } else {
+        gasRun('loginUser', u, p).then(function(res) {
+          hideFullPageLoading();
+          if (res.success) { currentUser = res.user; checkLoginState(); }
+          else Swal.fire('Gagal', res.message, 'error');
+        }).catch(function(err) { hideFullPageLoading(); Swal.fire('Error', err.message, 'error'); });
+      }
+    }
+
+    function showPage(pageName, navEl) {
+      activePage = pageName;
+      document.querySelectorAll('.nav-item-custom').forEach(function(el) { el.classList.remove('active'); });
+      if (navEl) navEl.classList.add('active');
+      
+      document.querySelectorAll('[id^="page-"]').forEach(function(el) { el.classList.add('d-none'); });
+      document.getElementById('page-' + pageName).classList.remove('d-none');
+      
+      if (window.innerWidth < 992) {
+        document.querySelector('.sidebar').classList.remove('active');
+        document.querySelector('.sidebar-overlay').classList.remove('active');
+      }
+      loadPageData(pageName);
+    }
+
+    function loadPageData(pageName, forceRefresh) {
+      var reqPage = pageName;
+      var isSilent = (forceRefresh === true);
+      
+      if (!isDataLoaded || forceRefresh) {
+        if (!isSilent) {
+          showSectionLoading(reqPage + 'Container');
+        }
+
+        if (typeof google === 'undefined') {
+          setTimeout(function() {
+            if (activePage !== reqPage && !isSilent) return;
+            dbBarang = mockBarang.slice();
+            dbPengajuan = mockPengajuan.slice();
+            isDataLoaded = true;
+            populateFilter();
+            distributeRender(reqPage);
+          }, 800);
+        } else {
+          gasRun('getCoreData').then(function(res) {
+            if (activePage !== reqPage && !isSilent) return;
+            if (res.success) {
+              dbBarang = res.data.barang;
+              dbPengajuan = res.data.pengajuan;
+              dbUsers = res.data.users;
+              isDataLoaded = true;
+              populateFilter();
+              distributeRender(activePage);
+            }
+          }).catch(console.error);
+        }
+      } else {
+        distributeRender(reqPage);
+      }
+    }
+
+    function distributeRender(page) {
+      if (page === 'dashboard') renderDashboard();
+      if (page === 'catalog') renderCatalog();
+      if (page === 'pengajuan') renderPengajuan();
+      if (page === 'verifikasi') renderVerifikasi();
+      if (page === 'manajemen') renderManajemenBarang();
+    }
+
+    function populateFilter() {
+      if (currentUser.role !== 'Admin') return;
+      var sel = document.getElementById('filterBU');
+      if (!sel) return;
+      var currVal = sel.value;
+      var bus = Array.from(new Set(dbPengajuan.map(function(x) { return x.bisnis_unit; })));
+      sel.innerHTML = '<option value="ALL">Semua Bisnis Unit</option>';
+      bus.forEach(function(bu) { sel.innerHTML += '<option value="'+bu+'">'+bu+'</option>'; });
+      sel.value = currVal || 'ALL';
+    }
+
+    function renderDashboard() {
+      var container = document.getElementById('dashboardContainer');
+      if (!container) return;
+      var filterBU = currentUser.role === 'Admin' ? document.getElementById('filterBU').value : currentUser.bisnis_unit;
+      
+      var dataP = dbPengajuan;
+      if (filterBU !== 'ALL') dataP = dataP.filter(function(x) { return x.bisnis_unit === filterBU; });
+      if (currentUser.role === 'Staff') dataP = dataP.filter(function(x) { return x.id_user == currentUser.id; });
+
+      var kpiTotal = dataP.reduce(function(sum, x) { return sum + Number(x.qty_req); }, 0);
+      var kpiPending = dataP.filter(function(x) { return x.status === 'PENDING'; }).reduce(function(sum, x) { return sum + Number(x.qty_req); }, 0);
+      var kpiApprove = dataP.filter(function(x) { return x.status === 'APPROVED'; }).reduce(function(sum, x) { return sum + Number(x.qty_app); }, 0);
+
+      if (chartPie) { chartPie.destroy(); chartPie = null; }
+      if (chartBarItem) { chartBarItem.destroy(); chartBarItem = null; }
+      if (chartBarBU) { chartBarBU.destroy(); chartBarBU = null; }
+
+      var html = '<div class="row g-4 mb-5">';
+      
+      html += '<div class="col-md-4"><div class="card card-kpi"><div class="card-body p-4 d-flex align-items-center gap-3">';
+      html += '  <div class="kpi-icon-container bg-primary bg-opacity-10 text-primary"><i class="fa-solid fa-layer-group"></i></div>';
+      html += '  <div><div class="text-muted small fw-semibold">Total Pengajuan</div><h3 class="fw-bold mb-0 text-dark" style="letter-spacing:-0.5px;">'+kpiTotal+' Item</h3></div>';
+      html += '</div></div></div>';
+      
+      html += '<div class="col-md-4"><div class="card card-kpi"><div class="card-body p-4 d-flex align-items-center gap-3">';
+      html += '  <div class="kpi-icon-container bg-warning-soft"><i class="fa-solid fa-hourglass-half"></i></div>';
+      html += '  <div><div class="text-muted small fw-semibold">Evaluasi Pending</div><h3 class="fw-bold mb-0 text-warning" style="letter-spacing:-0.5px;">'+kpiPending+' Item</h3></div>';
+      html += '</div></div></div>';
+      
+      html += '<div class="col-md-4"><div class="card card-kpi"><div class="card-body p-4 d-flex align-items-center gap-3">';
+      html += '  <div class="kpi-icon-container bg-success-soft"><i class="fa-solid fa-circle-check"></i></div>';
+      html += '  <div><div class="text-muted small fw-semibold">Pengajuan Terotorisasi</div><h3 class="fw-bold mb-0 text-success" style="letter-spacing:-0.5px;">'+kpiApprove+' Item</h3></div>';
+      html += '</div></div></div>';
+      
+      html += '</div>';
+
+      if (currentUser.role === 'Admin') {
+        html += '<div class="row g-4 mb-5">';
+        html += '<div class="col-md-4"><div class="card border-0 shadow-sm rounded-4 h-100" style="border: 1px solid #f1f5f9 !important;"><div class="card-body d-flex flex-column justify-content-center p-4" style="min-height:280px;"><canvas id="kpiChartPie"></canvas></div></div></div>';
+        html += '<div class="col-md-4"><div class="card border-0 shadow-sm rounded-4 h-100" style="border: 1px solid #f1f5f9 !important;"><div class="card-body d-flex flex-column justify-content-center p-4" style="min-height:280px;"><canvas id="kpiChartBarItem"></canvas></div></div></div>';
+        html += '<div class="col-md-4"><div class="card border-0 shadow-sm rounded-4 h-100" style="border: 1px solid #f1f5f9 !important;"><div class="card-body d-flex flex-column justify-content-center p-4" style="min-height:280px;"><canvas id="kpiChartBarBU"></canvas></div></div></div>';
+        html += '</div>';
+      }
+
+      var pendingData = dataP.filter(function(x) { return x.status === 'PENDING'; });
+      html += '<div class="card border-0 shadow-sm rounded-4" style="border: 1px solid #f1f5f9 !important;"><div class="card-body p-4">';
+      html += '<div class="d-flex align-items-center justify-content-between mb-4"><h6 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-clock-rotate-left text-warning me-2"></i>Daftar Pengajuan PENDING</h6><span class="badge bg-warning-soft">'+pendingData.length+' Records</span></div>';
+      if (pendingData.length === 0) {
+        html += '<div class="text-center py-5 text-muted small"><i class="fa-solid fa-inbox fa-2x d-block mb-3 opacity-50"></i>Seluruh manifes bersih dari status pending</div>';
+      } else {
+        html += '<div class="table-responsive"><table class="table table-hover align-middle small">';
+        html += '<thead><tr><th>Trx ID</th><th>Tanggal Input</th>'+(currentUser.role==='Admin'?'<th>BU / Pemohon Karyawan</th>':'')+'<th>Nama Item Barang</th><th>Qty Req</th><th>Otorisasi Status</th></tr></thead><tbody>';
+        pendingData.forEach(function(row) {
+          html += '<tr>';
+          html += '<td><span class="badge bg-secondary-soft text-dark fw-bold">' + row.id_trans + '</span></td>';
+          html += '<td>' + safeDate(row.tanggal) + '</td>';
+          if (currentUser.role === 'Admin') html += '<td><div class="fw-semibold text-dark">' + row.nama_user + '</div><div class="text-muted" style="font-size:0.75rem;">' + row.bisnis_unit + '</div></td>';
+          
+          // REPAIR: MENAMPILKAN CATATAN DI DASHBOARD PEMOHON MAUPUN ADMIN VERIFIKATOR
+          html += '<td>';
+          html += '  <span class="fw-semibold text-dark">' + row.nama_barang + '</span>';
+          if (row.catatan) {
+            html += '  <div class="text-muted mt-1 small" style="font-style: italic;"><i class="fa-solid fa-comment-dots text-warning me-1"></i>Catatan: ' + row.catatan + '</div>';
+          }
+          html += '</td>';
+          
+          html += '<td class="fw-bold">' + row.qty_req + ' Pcs</td>';
+          html += '<td><span class="badge bg-warning-soft">PENDING EVALUASI</span></td>';
+          html += '</tr>';
+        });
+        html += '</tbody></table></div>';
+      }
+      html += '</div></div>';
+
+      container.innerHTML = html;
+
+      if (currentUser.role === 'Admin') {
+        var ctxPie = document.getElementById('kpiChartPie');
+        var ctxBarItem = document.getElementById('kpiChartBarItem');
+        var ctxBarBU = document.getElementById('kpiChartBarBU');
+
+        chartPie = new Chart(ctxPie, { type: 'pie', data: { labels: ['Pending', 'Approved'], datasets: [{ data: [kpiPending, kpiApprove], backgroundColor: ['#f59e0b', '#059669'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Proporsi Status Item', font: { family: 'Plus Jakarta Sans', weight: 'bold' } } } } });
+
+        var itemNames = [], itemCounts = [];
+        dataP.forEach(function(x) { var idx = itemNames.indexOf(x.nama_barang); if (idx===-1) { itemNames.push(x.nama_barang); itemCounts.push(Number(x.qty_req)); } else { itemCounts[idx]+=Number(x.qty_req); } });
+        chartBarItem = new Chart(ctxBarItem, { type: 'bar', data: { labels: itemNames, datasets: [{ label: 'Qty Diajukan', data: itemCounts, backgroundColor: '#059669' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Volume Permintaan Item', font: { family: 'Plus Jakarta Sans', weight: 'bold' } } } } });
+
+        var buNames = [], buCounts = [];
+        dataP.forEach(function(x) { var idx = buNames.indexOf(x.bisnis_unit); if (idx===-1) { buNames.push(x.bisnis_unit); buCounts.push(Number(x.qty_req)); } else { buCounts[idx]+=Number(x.qty_req); } });
+        chartBarBU = new Chart(ctxBarBU, { type: 'bar', data: { labels: buNames, datasets: [{ label: 'Qty Diajukan', data: buCounts, backgroundColor: '#047857' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Distribusi per Bisnis Unit', font: { family: 'Plus Jakarta Sans', weight: 'bold' } } } } });
+      }
+    }
+
+    function renderCatalog() {
+      var container = document.getElementById('catalogContainer');
+      if (!container) return;
+      var keyword = document.getElementById('searchCatalog') ? document.getElementById('searchCatalog').value.toLowerCase().trim() : '';
+      
+      var filtered = dbBarang.filter(function(x) {
+        return String(x.nama).toLowerCase().includes(keyword);
+      });
+
+      if (filtered.length === 0) return container.innerHTML = '<div class="col-12 text-center py-5 text-muted"><i class="fa-solid fa-magnifying-glass fa-2x d-block mb-3 opacity-25"></i>Item logistik tidak ditemukan</div>';
+      
+      var html = '';
+      filtered.forEach(function(b) {
+        var isKosong = Number(b.stok) <= 0;
+        var badge = isKosong ? '<span class="badge bg-danger-soft position-absolute top-0 end-0 m-3 shadow-sm">OUT OF STOCK</span>' : '<span class="badge bg-success-soft position-absolute top-0 end-0 m-3 shadow-sm">TERSEDIA ('+b.stok+' Pcs)</span>';
+        var btn = isKosong ? '<button class="btn btn-secondary w-100 mt-auto py-2" disabled>Stok Gudang Habis</button>' : '<button class="btn btn-primary w-100 mt-auto py-2" onclick="addToCart('+b.id+')"><i class="fa-solid fa-cart-plus me-2"></i>Masukkan Keranjang</button>';
+        
+        html += '<div class="col-6 col-md-4 col-lg-3"><div class="card product-card h-100 position-relative">';
+        html += badge;
+        html += '<div class="product-img-wrapper"><img src="'+parseImageUrl(b.foto_url)+'" alt="'+b.nama+'" loading="lazy"></div>';
+        html += '<div class="card-body d-flex flex-column p-4">';
+        html += '<h6 class="fw-bold text-dark text-truncate mb-1" title="'+b.nama+'">'+b.nama+'</h6>';
+        html += '<p class="text-success fw-bold fs-5 mb-4">'+formatRp(b.harga)+'</p>';
+        html += btn;
+        html += '</div></div></div>';
+      });
+      container.innerHTML = html;
+    }
+
+    function addToCart(id) {
+      var item = dbBarang.find(function(x) { return x.id == id; });
+      if (!item || Number(item.stok) <= 0) return;
+      var existing = cart.find(function(x) { return x.id == id; });
+      if (existing) {
+        if (existing.qty_req < Number(item.stok)) existing.qty_req++;
+        else Swal.fire('Manifes Penuh', 'Kuantitas permintaan melebihi batas simpan fisik gudang', 'info');
+      } else {
+        // INISIALISASI PROPERTI CATATAN KOSONG PADA TIAP ITEM DI KERANJANG
+        cart.push({ id: item.id, nama: item.nama, harga: Number(item.harga), foto_url: item.foto_url, stok: Number(item.stok), qty_req: 1, catatan: '' });
+      }
+      updateCartBadge();
+      Swal.fire({icon:'success', title:'Ditambahkan ke Keranjang', toast:true, position:'bottom-end', showConfirmButton:false, timer:1500});
+    }
+
+    function updateCartBadge() {
+      var total = cart.reduce(function(sum, x) { return sum + x.qty_req; }, 0);
+      var badge = document.getElementById('cartBadge');
+      if (badge) badge.innerText = total;
+    }
+
+    function updateCartNote(idx, val) {
+      if (cart[idx]) {
+        cart[idx].catatan = val;
+      }
+    }
+
+    function openCartModal() {
+      var body = document.getElementById('cartModalBody');
+      if (!body) return;
+      if (cart.length === 0) { 
+        body.innerHTML = '<div class="text-center text-muted py-5"><i class="fa-solid fa-basket-shopping fa-2x d-block mb-3 opacity-25"></i>Keranjang logistik internal kosong</div>'; 
+      } else {
+        var html = '<ul class="list-group list-group-flush mb-4">';
+        var grandTotal = 0;
+        cart.forEach(function(c, i) {
+          grandTotal += (c.harga * c.qty_req);
+          html += '<li class="list-group-item px-0 border-light py-3">';
+          html += '  <div class="d-flex align-items-center gap-3 mb-2">';
+          html += '    <img src="'+parseImageUrl(c.foto_url)+'" width="56" height="56" class="rounded-3 object-fit-cover shadow-sm">';
+          html += '    <div class="flex-grow-1">';
+          html += '      <h6 class="mb-0 fw-bold text-dark">'+c.nama+'</h6>';
+          html += '      <small class="text-muted">'+formatRp(c.harga)+'</small>';
+          html += '    </div>';
+          html += '    <div class="d-flex align-items-center gap-2">';
+          html += '      <button class="btn btn-sm btn-light border px-2.5" onclick="changeQty('+i+',-1)">-</button>';
+          html += '      <span class="fw-bold px-1" style="min-width:24px;text-align:center;">'+c.qty_req+'</span>';
+          html += '      <button class="btn btn-sm btn-light border px-2.5" onclick="changeQty('+i+',1)">+</button>';
+          html += '    </div>';
+          html += '    <button class="btn btn-sm btn-outline-danger ms-2 border-0" onclick="changeQty('+i+',-99)"><i class="fa-solid fa-trash-can"></i></button>';
+          html += '  </div>';
+          
+          // INPUT CATATAN DINAMIS PER ITEM LOGISTIK
+          html += '  <div class="mt-2" style="padding-left: 72px;">';
+          html += '    <div class="input-group input-group-sm">';
+          html += '      <span class="input-group-text bg-light text-muted small"><i class="fa-regular fa-comment"></i></span>';
+          html += '      <input type="text" class="form-control" placeholder="Contoh: Dipergunakan untuk Printer Canon G3020 Divisi Share Function" value="'+(c.catatan || '')+'" onchange="updateCartNote('+i+', this.value)" style="font-size:0.85rem;">';
+          html += '    </div>';
+          html += '  </div>';
+          html += '</li>';
+        });
+        html += '</ul><div class="pt-3 border-top d-flex justify-content-between align-items-center"><div><span class="text-muted small d-block">Total Estimasi Anggaran</span><h3 class="fw-bold text-success mb-0">'+formatRp(grandTotal)+'</h3></div></div>';
+        body.innerHTML = html;
+      }
+      new bootstrap.Modal(document.getElementById('cartModal')).show();
+    }
+
+    function changeQty(index, dir) {
+      if (dir === -99) cart.splice(index, 1);
+      else {
+        var newQty = cart[index].qty_req + dir;
+        if (newQty > 0 && newQty <= cart[index].stok) cart[index].qty_req = newQty;
+        else if (newQty === 0) cart.splice(index, 1);
+      }
+      updateCartBadge();
+      openCartModal();
+    }
+
+    function submitCart() {
+      if (cart.length === 0) return Swal.fire('Info', 'Manifes logistik kosong', 'warning');
+      
+      var payload = { user: currentUser, items: cart };
+      var modalEl = document.getElementById('cartModal');
+      var modalInst = bootstrap.Modal.getInstance(modalEl);
+      if (modalInst) modalInst.hide();
+      
+      setTimeout(function() {
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        var backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(function(b) { b.remove(); });
+      }, 300);
+      
+      Swal.fire({icon:'info', title:'Mengirim Aplikasi Logistik...', toast:true, position:'bottom-end', showConfirmButton:false, timer:2000});
+      
+      if (typeof google !== 'undefined') {
+        gasRun('savePengajuan', payload).then(function(res) {
+          if (res.success) {
+            cart = []; updateCartBadge();
+            Swal.fire({icon:'success', title:'Manifes Sukses Dikirim', toast:true, position:'bottom-end', showConfirmButton:false, timer:2000});
+            loadPageData('pengajuan', true);
+            showPage('pengajuan', document.querySelectorAll('.nav-item-custom')[2]);
+          } else Swal.fire('Pemberhentian Eksekusi', res.message, 'error');
+        }).catch(function(e) { Swal.fire('Error', e.message, 'error'); });
+      } else {
+        setTimeout(function() {
+          cart.forEach(function(c) {
+            dbPengajuan.unshift({
+              _row: dbPengajuan.length + 2,
+              id_trans: 'TRX-' + Math.floor(Math.random() * 900000 + 100000),
+              id_user: currentUser.id,
+              nama_user: currentUser.fullname,
+              divisi: currentUser.divisi,
+              bisnis_unit: currentUser.bisnis_unit,
+              id_barang: c.id,
+              nama_barang: c.nama,
+              foto_barang: c.foto_url,
+              harga: c.harga,
+              qty_req: c.qty_req,
+              catatan: c.catatan || '',
+              qty_app: 0,
+              status: 'PENDING',
+              tanggal: new Date().toISOString().replace('T', ' ').substring(0, 19)
+            });
+          });
+          cart = []; updateCartBadge();
+          loadPageData('pengajuan', true);
+          showPage('pengajuan', document.querySelectorAll('.nav-item-custom')[2]);
+        }, 1000);
+      }
+    }
+
+    function renderPengajuan() {
+      var container = document.getElementById('pengajuanContainer');
+      if (!container) return;
+      var myData = dbPengajuan.filter(function(x) { return x.id_user == currentUser.id; });
+      if (myData.length === 0) return container.innerHTML = '<div class="text-center py-5 text-muted bg-white rounded-4 shadow-sm p-4 border"><i class="fa-solid fa-receipt fa-2x d-block mb-3 opacity-25"></i>Anda belum memiliki riwayat pengisian draf manifes</div>';
+      
+      var html = '<div class="table-responsive"><table class="table table-hover align-middle mb-0">';
+      html += '<thead><tr><th>Trx ID Identifier</th><th>Tanggal Alokasi</th><th>Parameter Barang</th><th>Nilai Satuan</th><th>Req</th><th>Approved</th><th>Otorisasi Status</th></tr></thead><tbody>';
+      myData.sort(function(a,b){ return new Date(b.tanggal) - new Date(a.tanggal); }).forEach(function(row) {
+        var statClass = row.status === 'PENDING' ? 'bg-warning-soft' : (row.status === 'APPROVED' ? 'bg-success-soft' : 'bg-danger-soft');
+        html += '<tr>';
+        html += '<td><span class="badge bg-secondary-soft text-dark font-weight-bold">' + row.id_trans + '</span></td>';
+        html += '<td><small class="fw-medium text-muted">' + safeDate(row.tanggal) + '</small></td>';
+        
+        // REPAIR: RENDERING CATATAN PEMOHON SECARA GRACEFUL DI SISI STAFF KARYAWAN
+        html += '<td>';
+        html += '  <div class="d-flex align-items-center gap-2.5">';
+        html += '    <img src="'+parseImageUrl(row.foto_barang)+'" width="36" height="36" class="rounded object-fit-cover border shadow-sm">';
+        html += '    <div>';
+        html += '      <span class="small fw-bold text-dark d-block">' + row.nama_barang + '</span>';
+        if (row.catatan) {
+          html += '    <span class="text-muted small" style="font-style: italic; font-size: 0.75rem;"><i class="fa-regular fa-comment-dots text-warning me-1"></i>' + row.catatan + '</span>';
+        }
+        html += '    </div>';
+        html += '  </div>';
+        html += '</td>';
+        
+        html += '<td><small class="text-muted">' + formatRp(row.harga) + '</small></td>';
+        html += '<td class="fw-semibold">' + row.qty_req + ' Pcs</td>';
+        html += '<td class="fw-bold text-success">' + row.qty_app + ' Pcs</td>';
+        html += '<td><span class="badge ' + statClass + '">' + row.status + '</span></td>';
+        html += '</tr>';
+      });
+      html += '</tbody></table></div>';
+      container.innerHTML = html;
+    }
+
+    function renderVerifikasi() {
+      var container = document.getElementById('verifikasiContainer');
+      if (!container) return;
+      var pendingTrans = {};
+      dbPengajuan.filter(function(x) { return x.status === 'PENDING'; }).forEach(function(x) {
+        if (!pendingTrans[x.id_trans]) pendingTrans[x.id_trans] = { user: x.nama_user, bu: x.bisnis_unit, date: x.tanggal, items: [] };
+        pendingTrans[x.id_trans].items.push(x);
+      });
+
+      var trxKeys = Object.keys(pendingTrans);
+      if (trxKeys.length === 0) return container.innerHTML = '<div class="text-center py-5 text-muted bg-white rounded-4 shadow-sm p-5 border"><i class="fa-solid fa-square-check fa-2x d-block mb-3 text-success opacity-50"></i>Seluruh antrean verifikasi logistik kliring bersih</div>';
+
+      var html = '<div class="row g-4">';
+      trxKeys.forEach(function(trx) {
+        var group = pendingTrans[trx];
+        html += '<div class="col-md-6"><div class="card border-0 shadow-sm rounded-4 h-100" style="border: 1px solid #e2e8f0 !important;"><div class="card-body p-4 d-flex flex-column">';
+        html += '<div class="d-flex justify-content-between align-items-center mb-3"><span class="badge bg-secondary-soft text-dark fw-bold px-3 py-2">'+trx+'</span><small class="text-muted fw-medium"><i class="fa-regular fa-calendar me-1"></i>'+safeDate(group.date)+'</small></div>';
+        html += '<h6 class="fw-bold mb-0 text-dark">'+group.user+'</h6><p class="small text-muted mb-3 mt-1"><i class="fa-solid fa-building me-1.5 text-success"></i> '+group.bu+'</p>';
+        html += '<ul class="list-group list-group-flush small mb-4 flex-grow-1">';
+        group.items.forEach(function(it) {
+          html += '<li class="list-group-item px-0 d-flex justify-content-between align-items-center py-2 text-dark font-weight-medium"><span>'+it.nama_barang+'</span><span class="badge bg-light text-dark border">'+it.qty_req+' Pcs</span></li>';
+        });
+        html += '</ul><button class="btn btn-outline-primary w-100 py-2" onclick="openVerifikasiModal(\''+trx+'\')" style="border-radius:10px;">Buka Lembar Verifikasi</button>';
+        html += '</div></div></div>';
+      });
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
+    function openVerifikasiModal(trxId) {
+      var items = dbPengajuan.filter(function(x) { return x.id_trans === trxId && x.status === 'PENDING'; });
+      var titleEl = document.getElementById('verifikasiModalTitle');
+      if (titleEl) titleEl.innerText = 'Otorisasi Kliring Dokumen - ' + trxId;
+      
+      var html = '<div class="table-responsive shadow-none border-0"><table class="table align-middle"><thead><tr><th>Nama Item Barang</th><th>Fisik Gudang</th><th>Volume Diajukan</th><th>Volume Disetujui</th><th>Keputusan Manajerial</th></tr></thead><tbody id="verifTbody">';
+      items.forEach(function(it, idx) {
+        var currBarang = dbBarang.find(function(b) { return b.id == it.id_barang; });
+        var maxStok = currBarang ? Number(currBarang.stok) : 0;
+        var defaultAppVal = Number(it.qty_req) <= maxStok ? it.qty_req : maxStok;
+        
+        html += '<tr data-row="'+it._row+'" data-idbarang="'+it.id_barang+'">';
+        
+        // REPAIR: MENAMPILKAN CATATAN PEMOHON SECARA GRACEFUL DI LEMBAR VERIFIKASI ADMIN
+        html += '<td>';
+        html += '  <div class="fw-bold text-dark small">'+it.nama_barang+'</div>';
+        if (it.catatan) {
+          html += '  <div class="text-muted mt-1 small" style="font-style: italic;"><i class="fa-regular fa-comment-dots text-warning me-1"></i>Catatan Pemohon: ' + it.catatan + '</div>';
+        }
+        html += '</td>';
+        
+        html += '<td><span class="badge bg-secondary-soft text-dark border">'+maxStok+' Pcs</span></td>';
+        html += '<td><span class="fw-bold text-dark">'+it.qty_req+' Pcs</span></td>';
+        html += '<td><input type="number" class="form-control form-control-sm v-qty" min="0" max="'+maxStok+'" value="'+defaultAppVal+'" style="width:85px; border-radius:6px;"></td>';
+        html += '<td><select class="form-select form-select-sm v-status" style="border-radius:6px;"><option value="PENDING">PENDING STATE</option><option value="APPROVED">APPROVE MANIFEST</option><option value="REJECTED">REJECT MANIFEST</option></select></td>';
+        html += '</tr>';
+      });
+      html += '</tbody></table></div>';
+      var bodyEl = document.getElementById('verifikasiModalBody');
+      if (bodyEl) bodyEl.innerHTML = html;
+      new bootstrap.Modal(document.getElementById('verifikasiModal')).show();
+    }
+
+    function saveVerifikasi() {
+      var rows = document.querySelectorAll('#verifTbody tr');
+      var payload = { items: [] };
+      rows.forEach(function(tr) {
+        payload.items.push({
+          row: parseInt(tr.getAttribute('data-row')),
+          id_barang: parseInt(tr.getAttribute('data-idbarang')),
+          qty_app: parseInt(tr.querySelector('.v-qty').value) || 0,
+          status: tr.querySelector('.v-status').value
+        });
+      });
+
+      var modalEl = document.getElementById('verifikasiModal');
+      var mod = bootstrap.Modal.getInstance(modalEl);
+      if (mod) mod.hide();
+      
+      Swal.fire({icon:'info', title:'Menyimpan Konfigurasi Otorisasi...', toast:true, position:'bottom-end', showConfirmButton:false, timer:2000});
+      
+      if (typeof google !== 'undefined') {
+        gasRun('processVerifikasi', payload).then(function(res) {
+          if (res.success) {
+            Swal.fire({icon:'success', title:'Kliring Berhasil Disimpan', toast:true, position:'bottom-end', showConfirmButton:false, timer:2000});
+            loadPageData('verifikasi', true);
+          } else Swal.fire('Gagal Komparasi', res.message, 'error');
+        }).catch(function(e) { Swal.fire('Error', e.message, 'error'); });
+      } else {
+        setTimeout(function() { 
+          payload.items.forEach(function(pItem) {
+            var idx = dbPengajuan.findIndex(function(x) { return x._row === pItem.row; });
+            if (idx > -1) {
+              dbPengajuan[idx].qty_app = pItem.qty_app;
+              dbPengajuan[idx].status = pItem.status;
+            }
+          });
+          loadPageData('verifikasi', true); 
+        }, 1000);
+      }
+    }
+
+    function renderManajemenBarang() {
+      var container = document.getElementById('manajemenContainer');
+      if (!container) return;
+      var keyword = document.getElementById('searchManajemen') ? document.getElementById('searchManajemen').value.toLowerCase().trim() : '';
+      
+      var filtered = dbBarang.filter(function(x) {
+        return String(x.nama).toLowerCase().includes(keyword);
+      });
+
+      if (filtered.length === 0) return container.innerHTML = '<div class="col-12 text-center py-5 text-muted"><i class="fa-solid fa-box-open fa-2x d-block mb-3 opacity-25"></i>Manifes master data barang kosong</div>';
+      
+      var html = '<div class="row g-4">';
+      filtered.forEach(function(b) {
+        var isSyncing = b._isSyncing ? 'opacity-40' : '';
+        var statusBadge = Number(b.stok) <= 0 ? '<span class="badge bg-danger-soft position-absolute top-0 end-0 m-3">EMPTY STOCK</span>' : '<span class="badge bg-success-soft position-absolute top-0 end-0 m-3">STOK: '+b.stok+' Pcs</span>';
+        
+        html += '<div class="col-6 col-md-4 col-lg-3 '+isSyncing+'"><div class="card product-card h-100 position-relative">';
+        html += statusBadge;
+        html += '<div class="product-img-wrapper"><img src="'+parseImageUrl(b.foto_url)+'" alt="'+b.nama+'" loading="lazy"></div>';
+        html += '<div class="card-body d-flex flex-column p-4">';
+        html += '<h6 class="fw-bold text-dark text-truncate mb-1" title="'+b.nama+'">'+b.nama+'</h6>';
+        html += '<p class="text-success fw-bold mb-3" style="font-size:0.95rem;">'+formatRp(b.harga)+'</p>';
+        html += '<div class="d-flex gap-2 mt-auto">';
+        
+        if (b._isSyncing) {
+          html += '<button class="btn btn-light border w-100 d-flex align-items-center justify-content-center py-1.5" disabled><span class="spinner-border spinner-border-sm text-success"></span></button>';
+        } else {
+          html += '<button class="btn btn-sm btn-light border flex-grow-1 py-1.5 fw-semibold" onclick="editBarang('+b.id+')"><i class="fa-solid fa-pen-to-square me-1.5 text-success"></i>Edit</button>';
+          html += '<button class="btn btn-sm btn-outline-danger py-1.5 border-light-subtle" onclick="hapusBarang('+b.id+')"><i class="fa-solid fa-trash-can"></i></button>';
+        }
+        
+        html += '</div></div></div></div>';
+      });
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
+    function openBarangModal() {
+      document.getElementById('barangForm').reset();
+      document.getElementById('b_id').value = '';
+      document.getElementById('b_isEdit').value = 'false';
+      new bootstrap.Modal(document.getElementById('barangModal')).show();
+    }
+
+    function editBarang(id) {
+      var b = dbBarang.find(function(x) { return x.id == id; });
+      if (!b) return;
+      document.getElementById('b_id').value = b.id;
+      document.getElementById('b_isEdit').value = 'true';
+      document.getElementById('b_nama').value = b.nama;
+      document.getElementById('b_foto').value = b.foto_url;
+      document.getElementById('b_harga').value = b.harga;
+      document.getElementById('b_stok').value = b.stok;
+      new bootstrap.Modal(document.getElementById('barangModal')).show();
+    }
+
+    function saveBarang() {
+      var payload = {
+        id: document.getElementById('b_id').value || new Date().getTime(),
+        isEdit: document.getElementById('b_isEdit').value,
+        nama: document.getElementById('b_nama').value.trim(),
+        foto_url: document.getElementById('b_foto').value.trim(),
+        harga: Number(document.getElementById('b_harga').value) || 0,
+        stok: parseInt(document.getElementById('b_stok').value) || 0,
+        _isSyncing: true
+      };
+
+      var backup = JSON.parse(JSON.stringify(dbBarang));
+      if (payload.isEdit === 'true') {
+        var idx = dbBarang.findIndex(function(x) { return x.id == payload.id; });
+        if (idx > -1) dbBarang[idx] = Object.assign({}, dbBarang[idx], payload);
+      } else { dbBarang.unshift(payload); }
+
+      renderManajemenBarang();
+      var modalEl = document.getElementById('barangModal');
+      var mod = bootstrap.Modal.getInstance(modalEl);
+      if (mod) mod.hide();
+      
+      setTimeout(function() {
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        var backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(function(b) { b.remove(); });
+      }, 300);
+
+      if (typeof google !== 'undefined') {
+        var copy = Object.assign({}, payload); delete copy._isSyncing;
+        gasRun('saveBarang', copy).then(function(res) {
+          if (res.success) loadPageData('manajemen', true);
+          else { dbBarang = backup; renderManajemenBarang(); Swal.fire('Error DB Synchronizer', res.message, 'error'); }
+        }).catch(function(e) { dbBarang = backup; renderManajemenBarang(); });
+      } else {
+        setTimeout(function() { loadPageData('manajemen', true); }, 1000);
+      }
+    }
+
+    function hapusBarang(id) {
+      Swal.fire({title:'Hapus Item Logistik?', text:'Manifes item akan dieliminasi permanen dari master database', icon:'warning', showCancelButton:true, confirmButtonText:'Ya, Eksekusi', confirmButtonColor:'#dc2626', cancelButtonColor:'#64748b'}).then(function(res) {
+        if (!res.isConfirmed) return;
+        var backup = JSON.parse(JSON.stringify(dbBarang));
+        dbBarang = dbBarang.filter(function(x) { return x.id != id; });
+        renderManajemenBarang();
+
+        if (typeof google !== 'undefined') {
+          gasRun('deleteBarang', id).then(function(res) {
+            if (!res.success) { dbBarang = backup; renderManajemenBarang(); Swal.fire('Gagal Sinkronisasi', res.message, 'error'); }
+          }).catch(function(e) { dbBarang = backup; renderManajemenBarang(); });
+        }
+      });
+    }
+
+    function openProfileModal() {
+      document.getElementById('profFullname').value = currentUser.fullname;
+      document.getElementById('profUsername').value = currentUser.username;
+      document.getElementById('profPassword').value = '';
+      document.getElementById('profDivisi').value = currentUser.divisi;
+      document.getElementById('profBU').value = currentUser.bisnis_unit;
+      document.getElementById('profPreview').src = parseImageUrl(currentUser.photo_url) || 'https://placehold.co/100x100?text=' + currentUser.username.charAt(0).toUpperCase();
+      document.getElementById('profFile').value = ''; 
+      new bootstrap.Modal(document.getElementById('profileModal')).show();
+    }
+
+    var tempPhotoBase64 = null;
+    var tempPhotoMime = null;
+
+    function previewProfilePhoto(input) {
+      if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var img = new Image();
+          img.onload = function() {
+            var canvas = document.createElement('canvas');
+            var ctx = canvas.getContext('2d');
+            
+            var MAX_WIDTH = 300;
+            var MAX_HEIGHT = 300;
+            var width = img.width;
+            var height = img.height;
+
+            if (width > height) {
+              if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+            } else {
+              if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+            var dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+            
+            document.getElementById('profPreview').src = dataUrl;
+            tempPhotoBase64 = dataUrl; 
+            tempPhotoMime = 'image/jpeg'; 
+          }
+          img.src = e.target.result;
+        }
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    function saveProfile() {
+      var payload = {
+        id: currentUser.id,
+        fullname: document.getElementById('profFullname').value.trim(),
+        username: document.getElementById('profUsername').value.trim(),
+        password: document.getElementById('profPassword').value,
+        photo_url: currentUser.photo_url,
+        photo_base64: tempPhotoBase64,
+        photo_mime: tempPhotoMime
+      };
+
+      Swal.fire({icon:'info', title:'Menyimpan Konfigurasi Identitas...', toast:true, position:'bottom-end', showConfirmButton:false, timer:2000});
+      
+      if (typeof google !== 'undefined') {
+        gasRun('updateProfile', payload).then(function(res) {
+          if (res.success) {
+            currentUser.fullname = payload.fullname;
+            currentUser.username = payload.username;
+            if (res.photo_url) currentUser.photo_url = res.photo_url;
+            tempPhotoBase64 = null; 
+            checkLoginState();
+            var modalEl = document.getElementById('profileModal');
+            var mod = bootstrap.Modal.getInstance(modalEl);
+            if (mod) mod.hide();
+            Swal.fire({icon:'success', title:'Profil Digital Tersinkronisasi', toast:true, position:'bottom-end', showConfirmButton:false, timer:2000});
+          } else Swal.fire('Penolakan Sinkronisasi', res.message, 'error');
+        }).catch(function(e) { Swal.fire('Error', e.message, 'error'); });
+      } else {
+        setTimeout(function() {
+          currentUser.fullname = payload.fullname;
+          if (tempPhotoBase64) currentUser.photo_url = tempPhotoBase64;
+          checkLoginState();
+          var modalEl = document.getElementById('profileModal');
+          var mod = bootstrap.Modal.getInstance(modalEl);
+          if (mod) mod.hide();
+        }, 1000);
+      }
+    }
+
+    function logout() {
+      currentUser = null;
+      isDataLoaded = false;
+      document.getElementById('username').value = '';
+      document.getElementById('password').value = '';
+      cart = []; updateCartBadge();
+      checkLoginState();
+    }
+  </script>
+</body>
+</html>

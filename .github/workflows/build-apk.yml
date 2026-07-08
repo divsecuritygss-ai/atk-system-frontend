@@ -1,0 +1,51 @@
+name: Build Android Hybrid APK
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Compile and Sign Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ambil Kode dari Repositori
+        uses: actions/checkout@v3
+
+      - name: Siapkan Lingkungan Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Instal Dependensi npm
+        run: |
+          npm install
+
+      - name: Lakukan Build Folder Distribusi Web
+        run: |
+          npm run build
+
+      - name: Konfigurasi Java JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Konfigurasi Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Sinkronisasi Capacitor dengan Android Native
+        run: |
+          npx cap sync android
+
+      - name: Kompilasi Menjadi Android Debug APK
+        run: |
+          cd android && ./gradlew assembleDebug
+
+      - name: Unggah Hasil APK Ke Tab Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ATK-System-Enterprise-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk

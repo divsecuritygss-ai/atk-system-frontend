@@ -1,0 +1,9 @@
+{
+  "appId": "com.enterprise.atksystem",
+  "appName": "ATK System",
+  "webDir": "dist",
+  "server": {
+    "url": "https://atk-system-frontend.vercel.app",
+    "cleartext": true
+  }
+}
